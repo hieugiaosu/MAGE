@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="favicon.png" type="image/png" />
+    <title>Mage - Coming Soon</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        background-color: #f0f0f0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      .coming-soon {
+        text-align: center;
+      }
+
+      .coming-soon h1 {
+        font-size: 5rem;
+        margin-bottom: 2rem;
+        animation: text-bounce 2s infinite alternate ease-in-out;
+      }
+
+      @keyframes text-bounce {
+        0% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+        100% {
+          transform: translateY(0);
+        }
+      }
+
+      .coming-soon .description {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+      }
+
+      .coming-soon .button {
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        color: #fff;
+        background-color: #333;
+        transition: background-color 0.2s ease-in-out;
+      }
+
+      .coming-soon .button:hover {
+        background-color: #222;
+      }
+
+      .speaker-icon {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 1rem;
+        animation: speaker-spin 2s infinite linear;
+      }
+
+      @keyframes speaker-spin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="coming-soon">
+      <h1 class="animate">Wanna Hear Our Voice ?</h1>
+      <h3 class="description">
+        We're trying to make this as fast as possible, but our teammates keep
+        asking for coffee breaks.
+      </h3>
+      <p class="description">Almost there. Just a bit longer, please!</p>
+      <a href="index.html" class="button">Back to Homepage</a>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="favicon.png" type="image/png" />
+    <title>Speech Enhancement Demo - MAGE</title>
+    <meta
+      name="description"
+      content="MAGE: Lightweight mask-based generative audio enhancer with 200M parameters achieving SOTA speech enhancement performance"
+    />
+    <meta
+      name="keywords"
+      content="speech enhancement, audio processing, generative models, mask-based learning, Qwen2.5, BigCodec"
+    />
+    <meta name="author" content="The Hieu Pham, Tan Dat Nguyen, et al." />
+
+    <!-- Open Graph meta tags for social sharing -->
+    <meta
+      property="og:title"
+      content="MAGE: Lightweight Mask-based Generative Audio Enhancer"
+    />
+    <meta
+      property="og:description"
+      content="Interactive demo showcasing lightweight generative speech enhancement with 200M parameters"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://hieugiaosu.github.io/MAGE" />
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="styles.css" />
+
+    <!-- Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="nav-brand">
+          <h2>MAGE</h2>
+        </div>
+        <ul class="nav-menu">
+          <li><a href="#home" class="nav-link">Home</a></li>
+          <li><a href="#demo" class="nav-link">Demo</a></li>
+          <li><a href="#results" class="nav-link">Results</a></li>
+          <li><a href="coming-soon.html" class="nav-link">Paper</a></li>
+        </ul>
+        <div class="hamburger">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+      <div class="hero-container">
+        <div class="hero-content">
+          <h1 class="hero-title">
+            MAGE: A Coarse-to-Fine Speech Enhancer with Masked Audio Generator
+          </h1>
+
+          <!-- Authors -->
+          <div class="authors-section">
+            <p class="authors">
+              <span class="author">The Hieu Pham<sup>†*</sup></span
+              >, <span class="author">Tan Dat Nguyen<sup>‡*</sup></span
+              >, <span class="author">Phuong Thanh Tran Nguyen<sup>†</sup></span
+              >, <span class="author">Joon Son Chung<sup>‡</sup></span
+              >,
+              <span class="author">Duc Dung Nguyen<sup>†</sup></span>
+            </p>
+            <p class="affiliations">
+              <sup>†</sup> AITech Lab, Ho Chi Minh City University of
+              Technology, VNUHCM<br />
+              <sup>‡</sup> Korea Advanced Institute of Science and Technology
+              (KAIST)<br />
+              <span class="equal-contrib"
+                >* These authors contributed equally to this work</span
+              >
+            </p>
+          </div>
+
+          <!-- Abstract -->
+          <div class="abstract-simple">
+            <p>
+              Existing speech enhancement (SE) models face a trade-off:
+              discriminative methods offer efficiency but generalize poorly,
+              while powerful generative approaches are computationally expensive
+              and difficult to train. To address this, we introduce
+              <strong>MAGE</strong>, a lightweight <strong>m</strong>ask-based
+              <strong>g</strong>enerative <strong>a</strong>udio
+              <strong>e</strong>nhancer model. Finetuned from the Qwen2.5-0.5B language model and built upon the
+              BigCodec, MAGE has a small footprint of approximately 200 million
+              parameters. MAGE employs a novel coarse-to-fine scarcity-aware
+              masking strategy alongside an auxiliary corrector to improve
+              learning efficiency and smooth the generation process,
+              respectively. Extensive experiments on various enhancement tasks demonstrate
+              that MAGE sets a new benchmark in enhancement performance while
+              remaining significantly more efficient than previous methods.
+            </p>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="hero-buttons">
+            <a href="#demo" class="btn btn-primary">
+              <i class="fas fa-play"></i>
+              Try Demo
+            </a>
+            <a href="coming-soon.html" class="btn btn-secondary">
+              <i class="fas fa-file-pdf"></i>
+              Paper
+            </a>
+            <a href="coming-soon.html" class="btn btn-outline">
+              <i class="fab fa-github"></i>
+              Code
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Demo Section -->
+    <section id="demo" class="demo-section"></section>
+
+    <!-- Results Section -->
+    <section id="results" class="results-section"></section>
+
+    <!-- Footer -->
+    <footer class="footer"></footer>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+  </body>
+</html>
