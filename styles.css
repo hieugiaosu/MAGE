@@ -653,6 +653,13 @@ body {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
+.table-container {
+    overflow-x: auto;
+    margin-bottom: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
 .samples-table th {
     background: #f3f4f6;
     padding: 1rem;
@@ -660,12 +667,32 @@ body {
     color: #374151;
     text-align: left;
     border-bottom: 2px solid #e5e7eb;
+    white-space: nowrap;
+    min-width: 250px;
+}
+
+.samples-table th:first-child {
+    min-width: 100px;
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    background: #f3f4f6;
 }
 
 .samples-table td {
     padding: 1.5rem 1rem;
     border-bottom: 1px solid #e5e7eb;
     vertical-align: top;
+    white-space: nowrap;
+    min-width: 250px;
+}
+
+.samples-table td:first-child {
+    min-width: 100px;
+    position: sticky;
+    left: 0;
+    z-index: 5;
+    background: white;
 }
 
 .samples-table tr:last-child td {
@@ -744,11 +771,21 @@ body {
     background: #f8fafc;
     border-radius: 6px;
     border-left: 3px solid #e5e7eb;
+    margin-top: 0.5rem;
+    transition: all 0.3s ease;
 }
 
 .transcript.ground-truth {
     border-left-color: #059669;
     background: #ecfdf5;
+    color: #065f46;
+    font-weight: 500;
+}
+
+.transcript:before {
+    content: "💬";
+    margin-right: 0.5rem;
+    opacity: 0.7;
 }
 
 /* Spectrogram Container */
@@ -928,53 +965,24 @@ body {
 
 /* Responsive adjustments for demo section */
 @media (max-width: 768px) {
-    .samples-table,
-    .samples-table thead,
-    .samples-table tbody,
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
     .samples-table th,
-    .samples-table td,
-    .samples-table tr {
-        display: block;
-    }
-
-    .samples-table {
-        border: none;
-    }
-
-    .samples-table thead tr {
-        position: absolute;
-        top: -9999px;
-        left: -9999px;
-    }
-
-    .samples-table tr {
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        margin-bottom: 1rem;
-        padding: 1rem;
-        background: white;
-    }
-
     .samples-table td {
-        border: none;
-        padding: 0.5rem 0;
-        position: relative;
+        min-width: 200px;
+        white-space: nowrap;
     }
 
-    .samples-table td:before {
-        content: attr(data-label) ": ";
-        font-weight: 600;
-        color: #374151;
-        display: inline-block;
-        margin-bottom: 0.5rem;
-    }
-
-    .sample-index:before {
-        content: "Sample ";
+    .samples-table th:first-child,
+    .samples-table td:first-child {
+        min-width: 80px;
     }
 
     .audio-item {
-        min-width: auto;
+        min-width: 200px;
     }
 
     .experiment {
@@ -1001,6 +1009,21 @@ body {
 
     .experiment {
         margin-bottom: 2rem;
+    }
+
+    .table-container {
+        margin: 0 -1rem;
+        border-radius: 0;
+    }
+
+    .samples-table th,
+    .samples-table td {
+        min-width: 180px;
+        padding: 1rem 0.5rem;
+    }
+
+    .audio-item {
+        min-width: 180px;
     }
 
     .metric-card {

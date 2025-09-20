@@ -109,28 +109,46 @@ async function initializeAudioShowcase() {
 
 async function loadExperiment(experimentName, container) {
     try {
-        // Load transcript data if available
-        let transcripts = {};
-        try {
-            const transcriptResponse = await fetch(`sample/${experimentName}/clean/trans.txt`);
-            if (transcriptResponse.ok) {
-                const transcriptText = await transcriptResponse.text();
-                transcripts = parseTranscripts(transcriptText);
-            }
-        } catch (error) {
-            console.log(`No transcripts found for ${experimentName}`);
-        }
-
+        console.log(`Loading experiment: ${experimentName}`);
+        
         // Get available models for this experiment
         const models = await getAvailableModels(experimentName);
+        console.log(`Available models for ${experimentName}:`, models);
+        
+        // Load transcript data from all available model directories
+        let allTranscripts = {};
+        for (const modelKey of Object.keys(models)) {
+            try {
+                const transcriptPath = `sample/${experimentName}/${modelKey}/trans.txt`;
+                console.log(`Attempting to load transcript from: ${transcriptPath}`);
+                
+                const transcriptResponse = await fetch(transcriptPath);
+                console.log(`Transcript response for ${modelKey}:`, transcriptResponse.status, transcriptResponse.ok);
+                
+                if (transcriptResponse.ok) {
+                    const transcriptText = await transcriptResponse.text();
+                    console.log(`Transcript text for ${modelKey}:`, transcriptText.substring(0, 100) + '...');
+                    
+                    const modelTranscripts = parseTranscripts(transcriptText);
+                    console.log(`Parsed transcripts for ${modelKey}:`, modelTranscripts);
+                    
+                    allTranscripts[modelKey] = modelTranscripts;
+                }
+            } catch (error) {
+                console.log(`No transcripts found for ${experimentName}/${modelKey}:`, error);
+            }
+        }
+        
+        console.log(`All transcripts for ${experimentName}:`, allTranscripts);
         
         // Get sample files
         const samples = await getSampleFiles(experimentName, models);
+        console.log(`Sample files for ${experimentName}:`, samples);
         
         // Create experiment container
         const experimentDiv = document.createElement('div');
         experimentDiv.className = 'experiment';
-        experimentDiv.innerHTML = createExperimentHTML(experimentName, models, samples, transcripts);
+        experimentDiv.innerHTML = createExperimentHTML(experimentName, models, samples, allTranscripts);
         
         container.appendChild(experimentDiv);
         
@@ -198,7 +216,7 @@ function parseTranscripts(transcriptText) {
     return transcripts;
 }
 
-function createExperimentHTML(experimentName, models, samples, transcripts) {
+function createExperimentHTML(experimentName, models, samples, allTranscripts) {
     const experimentTitle = experimentName.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
     const experimentDescription = getExperimentDescription(experimentName);
     
@@ -209,13 +227,14 @@ function createExperimentHTML(experimentName, models, samples, transcripts) {
     let html = `
         <h3 class="experiment-title">${experimentTitle}</h3>
         <p class="experiment-description">${experimentDescription}</p>
-        <table class="samples-table">
-            <thead>
-                <tr>
-                    ${headers.map(header => `<th>${header}</th>`).join('')}
-                </tr>
-            </thead>
-            <tbody>
+        <div class="table-container">
+            <table class="samples-table">
+                <thead>
+                    <tr>
+                        ${headers.map(header => `<th>${header}</th>`).join('')}
+                    </tr>
+                </thead>
+                <tbody>
     `;
     
     // Create rows for each sample
@@ -229,7 +248,20 @@ function createExperimentHTML(experimentName, models, samples, transcripts) {
             const modelLabel = models[modelKey];
             const fileExtension = experimentName === 'librispeech' && modelKey === 'clean' ? 'flac' : 'wav';
             const audioPath = `sample/${experimentName}/${modelKey}/${sample}.${fileExtension}`;
-            const transcript = transcripts[sample] || '';
+            
+            // Get transcript for this model/sample combination
+            // Prefer clean/ground truth transcript, fall back to model-specific transcript
+            let transcript = '';
+            let transcriptClass = '';
+            
+            if (allTranscripts['clean'] && allTranscripts['clean'][sample]) {
+                transcript = allTranscripts['clean'][sample];
+                transcriptClass = 'ground-truth';
+                console.log(`Using clean transcript for ${sample}: ${transcript}`);
+            } else if (allTranscripts[modelKey] && allTranscripts[modelKey][sample]) {
+                transcript = allTranscripts[modelKey][sample];
+                console.log(`Using ${modelKey} transcript for ${sample}: ${transcript}`);
+            }
             
             html += `
                 <td data-label="${modelLabel}">
@@ -241,7 +273,7 @@ function createExperimentHTML(experimentName, models, samples, transcripts) {
                                 Audio not supported
                             </audio>
                         </div>
-                        ${transcript ? `<div class="transcript ${modelKey === 'clean' ? 'ground-truth' : ''}">${transcript}</div>` : ''}
+                        ${transcript ? `<div class="transcript ${transcriptClass}">"${transcript}"</div>` : ''}
                         <div class="spectrogram-container" id="spectrogram-${sample}-${modelKey}">
                             <div class="spectrogram-label">Spectrogram - ${modelLabel}</div>
                             <div class="spectrogram-placeholder">
@@ -257,8 +289,9 @@ function createExperimentHTML(experimentName, models, samples, transcripts) {
     });
     
     html += `
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
     `;
     
     return html;
