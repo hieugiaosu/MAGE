@@ -2,6 +2,19 @@
 const hamburger = document.querySelector('.hamburger');
 const navMenu = document.querySelector('.nav-menu');
 
+// Configuration for GitHub Pages deployment
+const CONFIG = {
+    // Automatically detect if we're on GitHub Pages
+    isGitHubPages: window.location.hostname.includes('github.io'),
+    basePath: window.location.hostname.includes('github.io') ? '/MAGE' : '',
+    baseUrl: window.location.origin + (window.location.hostname.includes('github.io') ? '/MAGE' : '')
+};
+
+// Utility function to construct proper file paths
+function getFilePath(relativePath) {
+    return CONFIG.basePath + '/' + relativePath;
+}
+
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
     initializeNavigation();
@@ -68,42 +81,36 @@ async function initializeAudioShowcase() {
     if (!experimentsContainer) return;
 
     try {
+        console.log('Initializing audio showcase...');
+        console.log('Configuration:', CONFIG);
+        
         // Define experiment order as per instructions
         const experimentOrder = ['librispeech', 'dns_no_reverb', 'dns_with_reverb', 'dns_real_records'];
         
-        // Check which experiments actually exist
-        const availableExperiments = [];
-        for (const exp of experimentOrder) {
-            try {
-                const response = await fetch(`sample/${exp}/`, { method: 'HEAD' });
-                if (response.ok) {
-                    availableExperiments.push(exp);
-                }
-            } catch (error) {
-                // Check if directory exists by trying to load a known file structure
-                try {
-                    const testResponse = await fetch(`sample/${exp}/noisy/`);
-                    if (testResponse.status !== 404) {
-                        availableExperiments.push(exp);
-                    }
-                } catch (e) {
-                    // Skip this experiment
-                }
-            }
-        }
-
         // Load experiments that we know exist from workspace inspection
         const knownExperiments = ['librispeech', 'dns_real_records'];
         
         experimentsContainer.innerHTML = '';
         
         for (const experiment of knownExperiments) {
+            console.log(`Loading experiment: ${experiment}`);
             await loadExperiment(experiment, experimentsContainer);
         }
         
+        console.log('Audio showcase initialization complete');
+        
     } catch (error) {
         console.error('Error initializing audio showcase:', error);
-        experimentsContainer.innerHTML = '<div class="error">Error loading audio samples</div>';
+        experimentsContainer.innerHTML = `
+            <div class="error">
+                <h3>Error loading audio samples</h3>
+                <p>Please check the browser console for more details.</p>
+                <details>
+                    <summary>Technical Details</summary>
+                    <pre>${error.message}</pre>
+                </details>
+            </div>
+        `;
     }
 }
 
@@ -119,7 +126,7 @@ async function loadExperiment(experimentName, container) {
         let allTranscripts = {};
         for (const modelKey of Object.keys(models)) {
             try {
-                const transcriptPath = `sample/${experimentName}/${modelKey}/trans.txt`;
+                const transcriptPath = getFilePath(`sample/${experimentName}/${modelKey}/trans.txt`);
                 console.log(`Attempting to load transcript from: ${transcriptPath}`);
                 
                 const transcriptResponse = await fetch(transcriptPath);
@@ -247,7 +254,7 @@ function createExperimentHTML(experimentName, models, samples, allTranscripts) {
         modelOrder.forEach(modelKey => {
             const modelLabel = models[modelKey];
             const fileExtension = experimentName === 'librispeech' && modelKey === 'clean' ? 'flac' : 'wav';
-            const audioPath = `sample/${experimentName}/${modelKey}/${sample}.${fileExtension}`;
+            const audioPath = getFilePath(`sample/${experimentName}/${modelKey}/${sample}.${fileExtension}`);
             
             // Get transcript for this model/sample combination
             // Prefer clean/ground truth transcript, fall back to model-specific transcript
@@ -268,9 +275,9 @@ function createExperimentHTML(experimentName, models, samples, allTranscripts) {
                     <div class="audio-item">
                         <div class="audio-label ${modelKey === 'clean' ? 'ground-truth' : ''} ${modelKey === 'mage' ? 'mage' : ''}">${modelLabel}</div>
                         <div class="audio-player">
-                            <audio controls data-sample="${sample}" data-model="${modelKey}">
+                            <audio controls data-sample="${sample}" data-model="${modelKey}" data-audio-path="${audioPath}">
                                 <source src="${audioPath}" type="audio/${fileExtension === 'flac' ? 'flac' : 'wav'}">
-                                Audio not supported
+                                Your browser does not support the audio element.
                             </audio>
                         </div>
                         ${transcript ? `<div class="transcript ${transcriptClass}">"${transcript}"</div>` : ''}
@@ -319,6 +326,19 @@ function addAudioEventListeners(experimentDiv) {
     const audioElements = experimentDiv.querySelectorAll('audio');
     
     audioElements.forEach(audio => {
+        // Add load event listener for debugging
+        audio.addEventListener('loadstart', function() {
+            console.log(`Loading audio: ${this.dataset.audioPath}`);
+        });
+        
+        audio.addEventListener('loadeddata', function() {
+            console.log(`Successfully loaded audio: ${this.dataset.audioPath}`);
+        });
+        
+        audio.addEventListener('canplay', function() {
+            console.log(`Audio ready to play: ${this.dataset.audioPath}`);
+        });
+        
         // Add click event for spectrogram toggle
         audio.addEventListener('click', function(e) {
             const sample = this.dataset.sample;
@@ -346,10 +366,49 @@ function addAudioEventListeners(experimentDiv) {
             });
         });
         
-        // Handle audio loading errors gracefully
-        audio.addEventListener('error', function() {
+        // Enhanced error handling for GitHub Pages
+        audio.addEventListener('error', function(e) {
+            const audioPath = this.dataset.audioPath;
             const parent = this.parentElement;
-            parent.innerHTML = '<div style="color: #9ca3af; font-style: italic; padding: 1rem;">Audio file not available</div>';
+            
+            console.error(`Audio loading error for: ${audioPath}`, e);
+            console.error(`Error details:`, {
+                error: e.target.error,
+                code: e.target.error ? e.target.error.code : 'unknown',
+                networkState: this.networkState,
+                readyState: this.readyState,
+                currentSrc: this.currentSrc
+            });
+            
+            // Try alternative path construction for GitHub Pages
+            if (CONFIG.isGitHubPages && !audioPath.startsWith('http')) {
+                console.log(`Attempting alternative path for GitHub Pages...`);
+                const alternativePath = `${CONFIG.baseUrl}/${audioPath.replace(/^\/+/, '')}`;
+                console.log(`Trying alternative path: ${alternativePath}`);
+                
+                // Create a new source element with the alternative path
+                const newSource = document.createElement('source');
+                newSource.src = alternativePath;
+                newSource.type = this.querySelector('source').type;
+                
+                // Replace the existing source
+                const existingSource = this.querySelector('source');
+                if (existingSource) {
+                    existingSource.remove();
+                }
+                this.appendChild(newSource);
+                this.load(); // Reload the audio with new source
+                return;
+            }
+            
+            // If still failing, show error message
+            parent.innerHTML = `
+                <div class="audio-error">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Audio file not available</span>
+                    <div class="error-details">Path: ${audioPath}</div>
+                </div>
+            `;
         });
     });
 }
