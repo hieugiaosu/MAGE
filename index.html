@@ -50,6 +50,7 @@
         <ul class="nav-menu">
           <li><a href="#home" class="nav-link">Home</a></li>
           <li><a href="#demo" class="nav-link">Demo</a></li>
+          <li><a href="#live-demo" class="nav-link">Live Demo</a></li>
           <li><a href="#results" class="nav-link">Results</a></li>
           <li><a href="coming-soon.html" class="nav-link">Paper</a></li>
         </ul>
@@ -99,14 +100,15 @@
               and difficult to train. To address this, we introduce
               <strong>MAGE</strong>, a lightweight <strong>m</strong>ask-based
               <strong>g</strong>enerative <strong>a</strong>udio
-              <strong>e</strong>nhancer model. Finetuned from the Qwen2.5-0.5B language model and built upon the
-              BigCodec, MAGE has a small footprint of approximately 200 million
-              parameters. MAGE employs a novel coarse-to-fine scarcity-aware
-              masking strategy alongside an auxiliary corrector to improve
-              learning efficiency and smooth the generation process,
-              respectively. Extensive experiments on various enhancement tasks demonstrate
-              that MAGE sets a new benchmark in enhancement performance while
-              remaining significantly more efficient than previous methods.
+              <strong>e</strong>nhancer model. Finetuned from the Qwen2.5-0.5B
+              language model and built upon the BigCodec, MAGE has a small
+              footprint of approximately 200 million parameters. MAGE employs a
+              novel coarse-to-fine scarcity-aware masking strategy alongside an
+              auxiliary corrector to improve learning efficiency and smooth the
+              generation process, respectively. Extensive experiments on various
+              enhancement tasks demonstrate that MAGE sets a new benchmark in
+              enhancement performance while remaining significantly more
+              efficient than previous methods.
             </p>
           </div>
 
@@ -128,15 +130,197 @@
         </div>
       </div>
     </section>
+    <!-- Live Demo Section -->
+    <section id="live-demo" class="live-demo-section">
+      <div class="live-demo-container">
+        <h2 class="section-title">Live Demo</h2>
+        <p class="section-description">
+          Test MAGE speech enhancement with your own audio. Record your voice or
+          upload an audio file to see the enhancement in action.
+        </p>
 
+        <!-- Important Notes -->
+        <div class="demo-notes">
+          <div class="note warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <strong>Important:</strong> Audio must be in 16kHz sample rate for
+            optimal results.
+          </div>
+          <div class="note info">
+            <i class="fas fa-info-circle"></i>
+            <strong>Note:</strong> This demo runs on shared infrastructure and
+            may take a few moments to process. Please be patient.
+          </div>
+        </div>
+
+        <!-- Demo Interface -->
+        <div class="demo-interface">
+          <div class="demo-tabs">
+            <button class="tab-button active" data-tab="record">
+              <i class="fas fa-microphone"></i>
+              Record Audio
+            </button>
+            <button class="tab-button" data-tab="upload">
+              <i class="fas fa-upload"></i>
+              Upload File
+            </button>
+          </div>
+
+          <!-- Recording Tab -->
+          <div class="tab-content active" id="record-tab">
+            <div class="recording-interface">
+              <div class="recording-controls">
+                <button id="start-recording" class="btn btn-primary">
+                  <i class="fas fa-microphone"></i>
+                  Start Recording
+                </button>
+                <button id="stop-recording" class="btn btn-secondary" disabled>
+                  <i class="fas fa-stop"></i>
+                  Stop Recording
+                </button>
+                <button id="clear-recording" class="btn btn-outline" disabled>
+                  <i class="fas fa-trash"></i>
+                  Clear
+                </button>
+              </div>
+
+              <div class="recording-status">
+                <div id="recording-indicator" class="recording-indicator">
+                  <span class="status-text">Ready to record</span>
+                  <span class="recording-timer">00:00</span>
+                </div>
+              </div>
+
+              <div
+                class="audio-preview"
+                id="recording-preview"
+                style="display: none"
+              >
+                <h4>Your Recording</h4>
+                <audio id="recorded-audio" controls></audio>
+                <div class="audio-info">
+                  <span id="recording-info"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Upload Tab -->
+          <div class="tab-content" id="upload-tab">
+            <div class="upload-interface">
+              <div class="file-upload-area" id="file-upload-area">
+                <div class="upload-icon">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <div class="upload-text">
+                  <h4>Drop your audio file here</h4>
+                  <p>or <strong>click to browse</strong></p>
+                  <small
+                    >Supports: WAV, MP3, FLAC, M4A (will be converted to 16kHz
+                    WAV)</small
+                  >
+                </div>
+                <input
+                  type="file"
+                  id="audio-file-input"
+                  accept="audio/*"
+                  style="display: none"
+                />
+              </div>
+
+              <div class="file-info" id="file-info" style="display: none">
+                <h4>Selected File</h4>
+                <div class="file-details">
+                  <span id="file-name"></span>
+                  <span id="file-size"></span>
+                </div>
+                <audio id="uploaded-audio" controls></audio>
+                <div class="audio-info">
+                  <span id="upload-info"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Process Button and Results -->
+          <div class="demo-actions">
+            <button
+              id="process-audio"
+              class="btn btn-primary btn-large"
+              disabled
+            >
+              <i class="fas fa-magic"></i>
+              Enhance Audio with MAGE
+            </button>
+          </div>
+
+          <!-- Processing Status -->
+          <div
+            class="processing-status"
+            id="processing-status"
+            style="display: none"
+          >
+            <div class="loading-spinner">
+              <i class="fas fa-spinner fa-spin"></i>
+            </div>
+            <div class="status-text">
+              <h4>Processing your audio...</h4>
+              <p>
+                This may take a few moments on our shared infrastructure. Please
+                wait.
+              </p>
+              <div class="progress-bar">
+                <div class="progress-fill"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Results -->
+          <div class="demo-results" id="demo-results" style="display: none">
+            <h3>Enhancement Results</h3>
+            <div class="results-comparison">
+              <div class="result-item">
+                <h4>Original Audio</h4>
+                <audio id="original-result" controls></audio>
+              </div>
+              <div class="result-item enhanced">
+                <h4>Enhanced by MAGE</h4>
+                <audio id="enhanced-result" controls></audio>
+                <button
+                  class="btn btn-outline download-btn"
+                  id="download-enhanced"
+                >
+                  <i class="fas fa-download"></i>
+                  Download Enhanced Audio
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Error Display -->
+          <div class="demo-error" id="demo-error" style="display: none">
+            <div class="error-content">
+              <i class="fas fa-exclamation-circle"></i>
+              <h4>Processing Error</h4>
+              <p id="error-message"></p>
+              <button class="btn btn-outline" onclick="resetDemo()">
+                <i class="fas fa-redo"></i>
+                Try Again
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
     <!-- Demo Section -->
     <section id="demo" class="demo-section">
       <div class="demo-container">
         <h2 class="section-title">Audio Samples Demo</h2>
         <p class="section-description">
-          Compare audio quality across different models. Click on any audio player to show/hide its spectrogram visualization.
+          Compare audio quality across different models. Click on any audio
+          player to show/hide its spectrogram visualization.
         </p>
-        
+
         <!-- Experiments will be dynamically loaded here -->
         <div id="experiments-container" class="experiments-container">
           <div class="loading">Loading audio samples...</div>
